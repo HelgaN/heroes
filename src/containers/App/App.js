@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import './App.css';
 import axios from 'axios';
-import { Card, Spinner, InputGroup } from '@blueprintjs/core';
+import { Card, Spinner, InputGroup, Overlay, Button } from '@blueprintjs/core';
 import '@blueprintjs/core/lib/css/blueprint.css';
 
 class App extends Component {
@@ -19,8 +19,34 @@ class App extends Component {
      })
   }
 
+  closeOverlay = () => this.setState({ renderOverlay: false, src: null })
+
+  renderOverlay() {
+    const {src} = this.state;
+
+    return (
+      <Overlay
+        isOpen
+        onClose={this.closeOverlay}>
+        <Card>
+          <div style={{textAlign: 'right'}}>
+            <Button
+              className="bp3-intent-danger"
+              icon="cross"
+              onClick={this.closeOverlay}
+            />
+          </div>
+          <br/>
+          <div>
+            <img src={src} alt={src} />
+          </div>
+        </Card>
+      </Overlay>
+    );
+  }
+
   render() {
-    const { heroes, isLoading, search } = this.state;
+    const { heroes, isLoading, search, renderOverlay, src } = this.state;
 
     return (
       <Card className="bp3-dark">
@@ -36,15 +62,18 @@ class App extends Component {
             <tr>
               <th>Avatar</th>
               <th>Name</th>
+              <th>Publishing</th>
             </tr>
           </thead>
           <tbody>
             { heroes.map((hero) => <tr key={hero.id}>
-              <td><img src={hero.images.xs} alt={hero.name} /></td>
+              <td><img style={{ cursor: 'pointer' }} src={hero.images.xs} alt={hero.name} onClick={(src) => this.setState({ src: hero.images.lg, renderOverlay: true })} /></td>
               <td>{hero.name}</td>
+              <td>{hero.biography.publisher}</td>
             </tr>)}
           </tbody>
         </table>}
+        {renderOverlay && this.renderOverlay(src)}
        </Card>
     );
   }
