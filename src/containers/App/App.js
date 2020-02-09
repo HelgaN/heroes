@@ -15,7 +15,7 @@ class App extends Component {
     this.props.fetchHeroes();
   }
 
-  closeOverlay = () => this.setState({ renderOverlay: false, src: null })
+  closeOverlay = () => this.setState({ renderOverlay: false, src: null, name: null })
 
   findHero = () => {
     const { searchName } = this.state;
@@ -23,15 +23,16 @@ class App extends Component {
   }
 
   renderOverlay() {
-    const {src} = this.state;
+    const {src, name} = this.state;
 
     return (
       <Overlay
         portalClassName="bp3-portal-2"
         isOpen
         onClose={this.closeOverlay}>
-        <Card>
-          <div style={{textAlign: 'right'}}>
+        <Card className="bp3-dark" interactive>
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+            <h2>{name}</h2>
             <Button
               className="bp3-intent-danger"
               icon="cross"
@@ -50,18 +51,17 @@ class App extends Component {
   render() {
     const { searchName, renderOverlay, src } = this.state;
     const { heroes, fetchingHeroes } = this.props;
-    console.log(this.props);
 
     return (
-    <div className="container">
-      <Card className="bp3-dark">
+    <React.Fragment>
+      <Card className="bp3-dark" interactive>
         <InputGroup
           large
           leftIcon="search"
           onChange={(evt) => this.setState({ searchName: evt.target.value })}
           value={searchName}
           placeholder="Search by name"
-          rightElement={<Button onClick={this.findHero}>search</Button>}
+          rightElement={<Button intent="success" onClick={this.findHero}>search</Button>}
         />
     </Card>
     <br/>
@@ -78,15 +78,15 @@ class App extends Component {
           <tbody>
             { heroes.map((hero) =>
               <tr key={hero.id}>
-                <td><img style={{ cursor: 'pointer' }} src={hero.images.xs} alt={hero.name} onClick={(src) => this.setState({ src: hero.images.lg, renderOverlay: true })} /></td>
-                <td>{hero.name}</td>
+                <td><img style={{ cursor: 'pointer' }} src={hero.images.xs} alt={hero.name} onClick={(src) => this.setState({ src: hero.images.lg, name: hero.name, renderOverlay: true })} /></td>
+                <td><a href={`${hero.id}`}>{hero.name}</a></td>
                 <td>{hero.biography.publisher}</td>
               </tr>)}
           </tbody>
         </table>}
         {renderOverlay && this.renderOverlay(src)}
        </Card>
-     </div>
+     </React.Fragment>
     );
   }
 }

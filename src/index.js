@@ -11,5 +11,7 @@ const store = createStore(reducer, initialState, applyMiddleware(thunk));
 
 ReactDOM.render(
   <Provider store={store}>
-    <Main />
+    <div className="container">
+      <Main />
+    </div>
   </Provider>, document.getElementById('root'));
