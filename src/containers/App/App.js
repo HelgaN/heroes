@@ -1,22 +1,18 @@
 import React, {Component} from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { fetchHeroes } from './../../store';
 import './App.css';
-import axios from 'axios';
 import { Card, Spinner, InputGroup, Overlay, Button } from '@blueprintjs/core';
 import '@blueprintjs/core/lib/css/blueprint.css';
 
 class App extends Component {
   state = {
-    heroes: [],
     search: '',
-    isLoading: true
   }
 
   componentDidMount() {
-    axios.get(`https://cdn.rawgit.com/akabab/superhero-api/0.2.0/api/all.json`)
-     .then((resp) => {
-       console.log(resp.data);
-       this.setState({ heroes: resp.data, isLoading: false })
-     })
+    this.props.fetchHeroes();
   }
 
   closeOverlay = () => this.setState({ renderOverlay: false, src: null })
@@ -46,7 +42,9 @@ class App extends Component {
   }
 
   render() {
-    const { heroes, isLoading, search, renderOverlay, src } = this.state;
+    const { search, renderOverlay, src } = this.state;
+    const { heroes, fetchingHeroes } = this.props;
+    console.log(this.props);
 
     return (
       <Card className="bp3-dark">
@@ -56,8 +54,8 @@ class App extends Component {
           onChange={(evt) => this.setState({ search: evt.target.value })}
           value={search}
         />
-        {isLoading && <Spinner />}
-        {!isLoading && <table className="bp3-html-table bp3-html-table-striped">
+        {fetchingHeroes && <Spinner />}
+        {!fetchingHeroes && <table className="bp3-html-table bp3-html-table-striped">
           <thead>
             <tr>
               <th>Avatar</th>
@@ -66,11 +64,12 @@ class App extends Component {
             </tr>
           </thead>
           <tbody>
-            { heroes.map((hero) => <tr key={hero.id}>
-              <td><img style={{ cursor: 'pointer' }} src={hero.images.xs} alt={hero.name} onClick={(src) => this.setState({ src: hero.images.lg, renderOverlay: true })} /></td>
-              <td>{hero.name}</td>
-              <td>{hero.biography.publisher}</td>
-            </tr>)}
+            { heroes.map((hero) =>
+              <tr key={hero.id}>
+                <td><img style={{ cursor: 'pointer' }} src={hero.images.xs} alt={hero.name} onClick={(src) => this.setState({ src: hero.images.lg, renderOverlay: true })} /></td>
+                <td>{hero.name}</td>
+                <td>{hero.biography.publisher}</td>
+              </tr>)}
           </tbody>
         </table>}
         {renderOverlay && this.renderOverlay(src)}
@@ -79,4 +78,17 @@ class App extends Component {
   }
 }
 
-export default App;
+const mapStateToProps = (state) => {
+  return {
+    heroes: state.heroes,
+    fetchingHeroes: state.fetchingHeroes,
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    fetchHeroes: bindActionCreators(fetchHeroes, dispatch)
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
