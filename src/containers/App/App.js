@@ -1,14 +1,14 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { fetchHeroes } from './../../store';
+import { fetchHeroes, findHero } from './../../store';
 import './App.css';
 import { Card, Spinner, InputGroup, Overlay, Button } from '@blueprintjs/core';
 import '@blueprintjs/core/lib/css/blueprint.css';
 
 class App extends Component {
   state = {
-    search: '',
+    searchName: '',
   }
 
   componentDidMount() {
@@ -17,11 +17,17 @@ class App extends Component {
 
   closeOverlay = () => this.setState({ renderOverlay: false, src: null })
 
+  findHero = () => {
+    const { searchName } = this.state;
+    this.props.findHero(searchName);
+  }
+
   renderOverlay() {
     const {src} = this.state;
 
     return (
       <Overlay
+        portalClassName="bp3-portal-2"
         isOpen
         onClose={this.closeOverlay}>
         <Card>
@@ -42,20 +48,26 @@ class App extends Component {
   }
 
   render() {
-    const { search, renderOverlay, src } = this.state;
+    const { searchName, renderOverlay, src } = this.state;
     const { heroes, fetchingHeroes } = this.props;
     console.log(this.props);
 
     return (
+    <div className="container">
       <Card className="bp3-dark">
         <InputGroup
           large
           leftIcon="search"
-          onChange={(evt) => this.setState({ search: evt.target.value })}
-          value={search}
+          onChange={(evt) => this.setState({ searchName: evt.target.value })}
+          value={searchName}
+          placeholder="Search by name"
+          rightElement={<Button onClick={this.findHero}>search</Button>}
         />
-        {fetchingHeroes && <Spinner />}
-        {!fetchingHeroes && <table className="bp3-html-table bp3-html-table-striped">
+    </Card>
+    <br/>
+    <Card className="bp3-dark">
+        {fetchingHeroes && <div className="spinner-wrapper"><Spinner /></div>}
+        {!fetchingHeroes && <table className="bp3-html-table bp3-html-table-striped table-100">
           <thead>
             <tr>
               <th>Avatar</th>
@@ -74,20 +86,23 @@ class App extends Component {
         </table>}
         {renderOverlay && this.renderOverlay(src)}
        </Card>
+     </div>
     );
   }
 }
 
 const mapStateToProps = (state) => {
   return {
-    heroes: state.heroes,
+    filterHero: state.filterHero,
+    heroes: state.heroes.filter(hero => hero.name.toLowerCase().includes(state.filterHero)),
     fetchingHeroes: state.fetchingHeroes,
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    fetchHeroes: bindActionCreators(fetchHeroes, dispatch)
+    fetchHeroes: bindActionCreators(fetchHeroes, dispatch),
+    findHero: bindActionCreators(findHero, dispatch)
   }
 }
 

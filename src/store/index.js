@@ -4,8 +4,11 @@ const FETCH_HEROES = 'FETCH_HEROES';
 const FETCH_HEROES_SUCCESS = 'FETCH_HEROES_SUCCESS';
 const FETCH_HEROES_FAIL = 'FETCH_HEROES_FAIL';
 
+const FIND_HERO = 'FIND_HERO';
+
 const initialState = {
   heroes: [],
+  filterHero: '',
   fetchingHeroes: false,
 };
 
@@ -30,6 +33,11 @@ export default function reducer(state = initialState, action) {
         ...state,
         fetchingHeroes: false,
         fetchingHeroesError: action.error
+      }
+    case FIND_HERO:
+      return {
+        ...state,
+        filterHero: action.name
       }
     default:
       return state;
@@ -56,5 +64,15 @@ export const fetchHeroes = (heroes) => {
          })
        }
     })
+  }
+}
+
+export const findHero = (name) => {
+  console.log(`Find name ${name}`);
+  return (dispatch) => {
+    dispatch({
+      type: FIND_HERO,
+      name
+   })
   }
 }
